@@ -4,13 +4,14 @@ from engine import Engine
 from entity import Entity
 from game_map import GameMap
 from input_handlers import EventHandler
+from maze_gen_v1 import generate_maze_v1
 
 def main():
     screen_w = 80
     screen_h = 50
 
-    map_w = 80
-    map_h = 50
+    map_w = 20
+    map_h = 20
 
     tileset = tcod.tileset.load_tilesheet(
         'dejavu10x10_gs_tc.png', 32, 8, tcod.tileset.CHARMAP_TCOD
@@ -22,7 +23,7 @@ def main():
     npc = Entity(int(screen_w / 2 - 5), int(screen_h / 2), '@', (255, 0, 255))
     entities = {player, npc}
 
-    game_map = GameMap(map_w, map_h)
+    game_map = generate_maze_v1(map_w, map_h)
 
     engine = Engine(entities = entities, event_handler = event_handler, game_map = game_map, player = player)
 
