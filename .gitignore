@@ -1,1 +1,3 @@
 .vscode/settings.json
+/mapgens
+grid_output.txt

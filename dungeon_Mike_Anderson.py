@@ -1,4 +1,5 @@
-from random import randint, getrandbits, seed
+from dataclasses import dataclass
+from random import randint, getrandbits, choice, seed
 from enum import Enum
 import numpy as np
 
@@ -31,40 +32,41 @@ class Direction(Enum):
     East = 4
 
 class Rect:
-    x: int
-    y: int
-    width: int
-    height: int
+    def __init__(self, x = None, y = None, width = None, height = None) -> None:
+        self.x = x if x is not None else 1
+        self.y = y if y is not None else 1
+        self.width = width if width is not None else 1
+        self.height = height if height is not None else 1
 
 class Dungeon:
     def __init__(self, width, height):
         self.__width = width
         self.__height = height
-        self.__tiles = np.full((width, height), fill_value = UNUSED, order = 'F')
+        self.__tiles = [[UNUSED] * width for i in range(height)] # np.full((width, height), fill_value = UNUSED, order = 'F')
         self.__rooms = []
-        self.__exits = []
+        self.__exits = [Rect]
 
     @property
     def __area(self):
         return self.__width * self.__height
 
-    def getTile(self, x, y):
+    def getTile(self, x: int, y: int):
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
             return UNUSED
 
-        return self.__tiles[x + y * self.__width]
+        return self.__tiles[int(x)][int(y)]
 
     def setTile(self, x, y, tile):
-        self.__tiles[x + y * self.__width] = tile
+        self.__tiles[int(x)][int(y)] = tile
 
-    def createFeature(self):
+    def selectFeature(self):
         for i in range(1000):
             if not self.__exits:
                 break
 
             r = randint(0, len(self.__exits))
-            x = randint(self.__exits[r].x, self.__exits[r].x + self.__exits[r].width - 1)
-            y = randint(self.__exits[r].y, self.__exits[r].y + self.__exits[r].height - 1)
+            x = randint(int(self.__exits[r].x), int(self.__exits[r].x + self.__exits[r].width - 1))
+            y = randint(int(self.__exits[r].y), int(self.__exits[r].y + self.__exits[r].height - 1))
 
             for dir in Direction:
                 if self.createFeature(x, y, dir):
@@ -204,10 +206,14 @@ class Dungeon:
 
         y = rect.y
         x = rect.x
+        print(f'x: {x}')
         while y < rect.y + rect.height:
             while x < rect.x + rect.width:
                 if self.getTile(x, y) is not UNUSED:
                     return False
+                x += 1
+            y += 1
+
 
         while y - 1 < rect.y + rect.height + 1:
             while x - 1 < rect.x + rect.width + 1:
@@ -215,15 +221,17 @@ class Dungeon:
                     self.setTile(x, y, WALL)
                 else:
                     self.setTile(x, y, tile)
+                x += 1
+            y += 1
 
         return True
 
     def generate(self, maxFeatures):
-        if not self.makeRoom(self.__width / 2, self.__height / 2, Direction(randint(1, 4), True)):
+        if not self.makeRoom(self.__width / 2, self.__height / 2, choice(list(Direction)), True):
             print(f'Can\'t place first room')
 
         for i in range(maxFeatures):
-            if not self.createFeature():
+            if not self.selectFeature():
                 print(f'Can\'t place more features (placed {i})\n')
                 break
 
@@ -234,11 +242,36 @@ class Dungeon:
                 tile = ' '
 
     def print(self):
-        for i in self.__height:
-            for j in self.__width:
-                print(f'{self.getTile(i, j)}\n')
+        for i in range(self.__height):
+            for j in range(self.__width):
+                print(f'{self.getTile(i, j)}')
+            print(f'\n')
+
+    def print_grid(self):
+        print("_ " * self.__width + '\n\n' + 'Grid map\n' + '_ ' * self.__width, end = '\n\n\n')
+
+        # quite old way of printing out grids
+        # for r in range(self.__rows):
+        #   for c in range(self.__cols):
+        #       print('{}'.format(self.tile_content(r, c)), end=' ')
+        #   print('\n')
+
+        # much better and 'new' approach thanks to Uncle
+        print('\n'.join(
+            (self.__get_row_as_string(row) for row in self.__tiles)
+        ), end = '\n\n')
+
+        f = open('grid_output.txt', 'w')
+        f.write('\n\n')
+        f.write('\n'.join(
+            (self.__get_row_as_string(row) for row in self.__tiles)
+        ))
+        f.close()
+
+    def __get_row_as_string(self, row):
+        return ' '.join((TILE_MAPPING[cell] for cell in row))
 
 if __name__ == '__main__':
     cave = Dungeon(30, 40)
     cave.generate(50)
-    cave.print()
+    cave.print_grid()
