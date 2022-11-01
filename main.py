@@ -2,7 +2,6 @@ import tcod
 
 from engine import Engine
 from entity import Entity
-from game_map import GameMap
 from input_handlers import EventHandler
 from maze_gen_v1 import generate_maze_v1
 
@@ -10,8 +9,8 @@ def main():
     screen_w = 80
     screen_h = 50
 
-    map_w = 20
-    map_h = 20
+    map_w = 50
+    map_h = 50
 
     tileset = tcod.tileset.load_tilesheet(
         'dejavu10x10_gs_tc.png', 32, 8, tcod.tileset.CHARMAP_TCOD

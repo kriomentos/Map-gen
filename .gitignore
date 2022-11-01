@@ -1,3 +1,4 @@
 .vscode/settings.json
 /mapgens
 grid_output.txt
+/__pycache__
