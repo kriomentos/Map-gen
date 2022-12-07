@@ -13,16 +13,8 @@ def generate_maze_v1(map_w, map_h) -> GameMap:
     sy = random.choice(range(0, map_h - 1))
 
     dungeon = GameMap(map_w, map_h)
-    print(
-        f'd_size: {dungeon.width, dungeon.height}\n'
-        f'd_shape: {dungeon.tiles.shape}'
-    )
 
     path = Maze(map_w, map_h)
-    print(
-        f'p_size: {path.width, path.height}\n'
-        f'p_shape: {path.tiles.shape}'
-    )
     # path.tiles = np.pad(path.tiles, (1, 1), mode = 'constant', constant_values = tile_types.visited)
     path.create_maze(sx, sy)
 
